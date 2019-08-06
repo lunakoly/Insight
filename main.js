@@ -16,9 +16,9 @@ const LANGUAGES = [
 ]
 
 
-let command = 'echo Hello, world!'
-let language = 'kotlin'
-let code = 'println("Hello!")'
+let command = 'python code'
+let language = 'python'
+let code = 'print("Hello!")'
 
 let isRunning = false
 
@@ -29,6 +29,12 @@ app.get('/', function(request, response) {
 	response.sendFile(__dirname + '/static/index.html')
 })
 
+function isAdmin(address) {
+	return address == '::1' ||
+		   address == '127.0.0.1' ||
+		   address == '::ffff:127.0.0.1'
+}
+
 io.on('connection', function(socket) {
 	const address = socket.handshake.address
 
@@ -36,17 +42,15 @@ io.on('connection', function(socket) {
 	socket.emit('get language', language)
 	socket.emit('get code', code)
 
-	if (
-		address == '::1' ||
-		address == '127.0.0.1' ||
-		address == '::ffff:127.0.0.1'
-	) {
+	if (isAdmin(address)) {
 		socket.emit('accept admin')
 	}
 
 	socket.on('set command', function(theCommand) {
-		command = theCommand
-		socket.broadcast.emit('get command', command)
+		if (isAdmin(address)) {
+			command = theCommand
+			socket.broadcast.emit('get command', command)
+		}
 	})
 
 	socket.on('set language', function(theLanguage) {
@@ -67,12 +71,14 @@ io.on('connection', function(socket) {
 			return
 
 		io.sockets.emit('disable running')
-		console.log('Running > ' + command)
+		process.stdout.write('Running > ' + command)
 		isRunning = true
 
 		fs.writeFile(__dirname + RUNNABLES + '/code', code, function(error) {
-			if (error)
+			if (error) {
+				isRunning = false
 				return console.error(error)
+			}
 
 			const child = cp.spawn(command, {
 				shell: true,
@@ -90,6 +96,7 @@ io.on('connection', function(socket) {
 			child.on('exit', function(code, signal) {
 				io.sockets.emit('output', `<span class="output-exit">Exit code: ${code}</span>\n`)
 				isRunning = false
+				console.log(' > Done')
 				io.sockets.emit('enable running')
 			})
 		})

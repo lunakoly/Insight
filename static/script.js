@@ -65,12 +65,12 @@ language.addEventListener('change', e => {
 	swapLanguage()
 })
 
-input.addEventListener('input', e => {
-	socket.emit('set code', input.value)
-})
-
 run.addEventListener('click', e => {
 	socket.emit('run')
+})
+
+input.addEventListener('input', e => {
+	socket.emit('set code', input.value)
 })
 
 
@@ -78,5 +78,13 @@ input.addEventListener('keydown', e => {
 	if (e.key == 'Tab') {
 		e.preventDefault()
 		relations.inject(input, decoration, '\t')
+
+		const event = new Event('input', {
+			'bubbles': true,
+			'cancelable': false
+		})
+		input.dispatchEvent(event)
+
+		return
 	}
 })
