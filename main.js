@@ -71,8 +71,10 @@ io.on('connection', function(socket) {
 		isRunning = true
 
 		fs.writeFile(__dirname + RUNNABLES + '/code', code, function(error) {
-			if (error)
+			if (error){
+				isRunning = false
 				return console.error(error)
+			}
 
 			const child = cp.spawn(command, {
 				shell: true,
