@@ -1,0 +1,30 @@
+.keyword {
+	color: #ff6722;
+	font-weight: bold;
+}
+
+.function-call {
+	color: #50c6fe;
+}
+
+.number {
+	color: #efd099;
+}
+
+.quoted {
+	color: #94dc90;
+	font-style: italic;
+}
+
+.primitive {
+	color: #bea0d6;
+}
+
+.preprocessor-directive {
+	color: #ff6e6e;
+	font-weight: bold;
+}
+
+.boolean-value {
+	color: #efd099;
+}

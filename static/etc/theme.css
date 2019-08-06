@@ -1,0 +1,176 @@
+body {
+	background-color: #434347;
+	font-family: "MS Shell Dlg 2";
+	counter-reset: line-number;
+}
+
+#contents {
+	height: 100%;
+	width: 100%;
+}
+
+.controls {
+	height: 3em;
+	position: relative;
+
+	/* Work-around for EDGE. It doesn't support 8 rgba hex */
+	/* https://jsfiddle.net/teddyrised/g02s07n4/embedded/result/ */
+	background-color: rgba(230,230,230,0.149);
+	align-items: center;
+}
+
+#editor-side {
+	background-color: rgba(183,182,182,0.09);
+	width: 65%;
+}
+
+#editor {
+	height: 100%;
+}
+
+#output-side {
+	flex-grow: 1;
+	/* Works with #output.overflow = auto
+	   It's used to prevent #output-side
+	   from growing with #output contents */
+	min-height: 0;
+	min-width: 0;
+}
+
+#output {
+	height: 100%;
+	white-space: pre;
+	overflow: auto;
+
+	padding: 0.7em;
+	color: #eeeeee;
+
+	-moz-tab-size: 4;
+		 tab-size: 4;
+
+	font-size: 16px;
+	font-family: "Courier";
+
+	-webkit-overflow-scrolling: touch;
+}
+
+#input {
+	caret-color: #eeeeee;
+	/* its needed because of line counters */
+	/*padding-left: 3.4em;*/
+}
+
+#decoration {
+	color: #eeeeee;
+}
+
+.area {
+	padding: 0.7em;
+
+	/* causes issues when ::before is used for
+	   line counters */
+	-moz-tab-size: 4;
+		 tab-size: 4;
+
+	font-size: 16px;
+	font-family: "Courier";
+
+	-webkit-appearance: none;
+
+	-webkit-border: 3px solid transparent;
+}
+
+/* ::before makes \t get calculater incorreclty
+   it'll be calculated starting where ::begin does */
+/*.line::before {
+	counter-increment: line-number;
+	content: counter(line-number);
+*/
+	/* fixed size is required because
+	   we need to shift textarea by a
+	   certain amount of space that is
+	   the same for every line */
+/*	display: inline-block;
+	margin-right: 0.7em;
+	width: 2em;
+
+	text-align: right;
+	color: darkgray;
+}*/
+
+.caption {
+	padding: 0.1em 1.5em;
+	font-size: 1.05em;
+}
+
+.textfield {
+	padding: 0.1em 0.5em;
+	font-family: "Courier New";
+	font-size: 1.05em;
+}
+
+.textfield::placeholder {
+	color: #888888;
+}
+
+.interactible {
+	color: #eeeeee;
+	cursor: pointer;
+
+	background-color: rgba(0,0,0,0.38);
+	border: 4px solid rgba(77,77,77,0.619);
+}
+
+.interactible:not(:disabled):hover {
+	border: 4px solid rgba(87,87,87,0.619);
+}
+
+.interactible:not(:disabled):active {
+	background-color: rgba(14,14,14,0.38);
+}
+
+.interactible:disabled {
+	background-color: rgba(67,67,67,0.38);
+	border: 4px solid rgba(108,108,108,0.4);
+}
+
+#commandCaption {
+	position: absolute;
+	left: calc(4px + 0.5em);
+
+	top: 50%;
+	transform: translateY(-50%);
+
+	color: #eeeeee;
+}
+
+#command {
+	padding-left: 1.4em;
+}
+
+/*
+#command {
+	flex-grow: 1;
+}*/
+
+select {
+	-webkit-appearance: none;
+	border-radius: 0;
+}
+
+select::-ms-expand {
+	display: none;
+}
+
+select option {
+	background-color: rgba(0,0,0,0.38);
+	border: 4px solid rgba(77,77,77,0.619);
+}
+
+.output-error {
+	color: #ff6e6e;
+}
+
+.output-exit {
+	color: #94dc90;
+}

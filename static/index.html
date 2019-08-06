@@ -1,0 +1,71 @@
+<html>
+	<head>
+		<title>Insight</title>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+
+		<link rel="stylesheet" href="static/components.css">
+
+		<link rel="stylesheet" href="static/etc/scheme.css">
+		<link rel="stylesheet" href="static/etc/theme.css">
+
+		<script src="static/script.js" type="module"></script>
+		<script src="static/bug-fixer.js" type="module"></script>
+	</head>
+
+	<body>
+		<div class="filler horizontal bar">
+			<div id="editor-side" class="vertical bar">
+				<div class="controls horizontal bar">
+					<select
+						id="language"
+						class="interactible caption"
+						title="Switch highlighting context">
+						<option value="kotlin" selected>Kotlin</option>
+						<option value="cpp">C++</option>
+						<option value="python">Python</option>
+					</select>
+
+					<button
+						id="run"
+						class="interactible caption"
+						title="Execute the command with the code as an input">Run</button>
+				</div>
+
+				<div id="editor" class="viewport">
+					<div class="expandable">
+						<textarea
+							id="input"
+							class="detached unscrollable transparent filler area"
+							wrap="off"
+							spellcheck="false"></textarea>
+
+						<div
+							id="decoration"
+							class="text-preserving area"
+							data-observe="#input"
+							data-highlighter="scoped"></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="output-side" class="vertical bar">
+				<div class="controls horizontal bar">
+					<div id="commandCaption">$</div>
+					<input
+						id="command"
+						type="textfield"
+						class="interactible filler textfield"
+						disabled=true
+						placeholder="echo Hello, world!"
+						title="A host may type in a command to be executed when [Run] is pressed">
+				</div>
+
+				<div id="output"></div>
+			</div>
+		</div>
+
+		<script src="/socket.io/socket.io.js"></script>
+	</body>
+</html>
