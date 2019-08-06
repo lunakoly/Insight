@@ -1,3 +1,5 @@
+const SETTINGS = require('./settings.js')
+
 const express = require('express')
 const app = express()
 const http = require('http').createServer(app)
@@ -6,19 +8,9 @@ const fs = require('fs')
 const cp = require('child_process')
 
 
-const PORT = 1234
-const RUNNABLES = '/temp'
-
-const LANGUAGES = [
-	'kotlin',
-	'cpp',
-	'python'
-]
-
-
-let command = 'python code'
-let language = 'python'
-let code = 'print("Hello!")'
+let command = SETTINGS.COMMAND
+let code = SETTINGS.CODE
+let language = SETTINGS.LANGUAGE
 
 let isRunning = false
 
@@ -54,7 +46,7 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('set language', function(theLanguage) {
-		if (LANGUAGES.includes(theLanguage)) {
+		if (SETTINGS.LANGUAGES.includes(theLanguage)) {
 			language = theLanguage
 			socket.broadcast.emit('get language', language)
 			console.log('Set > Language > ' + language)
@@ -74,7 +66,7 @@ io.on('connection', function(socket) {
 		process.stdout.write('Running > ' + command)
 		isRunning = true
 
-		fs.writeFile(__dirname + RUNNABLES + '/code', code, function(error) {
+		fs.writeFile(__dirname + SETTINGS.RUNNABLES + '/code', code, function(error) {
 			if (error) {
 				isRunning = false
 				return console.error(error)
@@ -82,7 +74,7 @@ io.on('connection', function(socket) {
 
 			const child = cp.spawn(command, {
 				shell: true,
-				cwd: __dirname + RUNNABLES
+				cwd: __dirname + SETTINGS.RUNNABLES
 			})
 
 			child.stdout.on('data', function(data) {
@@ -103,6 +95,6 @@ io.on('connection', function(socket) {
 	})
 })
 
-http.listen(PORT, function() {
-	console.log(`Started > Port = ${PORT}`)
+http.listen(SETTINGS.PORT, function() {
+	console.log(`Started > Port = ${SETTINGS.PORT}`)
 })
