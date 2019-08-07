@@ -4,11 +4,6 @@ body {
 	counter-reset: line-number;
 }
 
-#contents {
-	height: 100%;
-	width: 100%;
-}
-
 .controls {
 	height: 3em;
 	position: relative;
@@ -24,10 +19,6 @@ body {
 	width: 65%;
 }
 
-#editor {
-	height: 100%;
-}
-
 #output-side {
 	flex-grow: 1;
 	/* Works with #output.overflow = auto
@@ -37,29 +28,13 @@ body {
 	min-width: 0;
 }
 
-#output {
-	height: 100%;
-	white-space: pre;
-	overflow: auto;
-
-	padding: 0.7em;
-	color: #eeeeee;
-
-	-moz-tab-size: 4;
-		 tab-size: 4;
-
-	font-size: 16px;
-	font-family: "Courier";
-
-	-webkit-overflow-scrolling: touch;
-}
-
 #input {
 	caret-color: #eeeeee;
 	/* its needed because of line counters */
-	/*padding-left: 3.4em;*/
+	/*margin-left: 2.7em;*/
 }
 
+#output,
 #decoration {
 	color: #eeeeee;
 }
@@ -70,10 +45,11 @@ body {
 	/* causes issues when ::before is used for
 	   line counters */
 	-moz-tab-size: 4;
+	  -o-tab-size: 4;
 		 tab-size: 4;
 
 	font-size: 16px;
-	font-family: "Courier";
+	font-family: "Courier New";
 
 	-webkit-appearance: none;
 
@@ -121,17 +97,17 @@ body {
 	border: 4px solid rgba(77,77,77,0.619);
 }
 
+.interactible:disabled {
+	background-color: rgba(67,67,67,0.38);
+	border: 4px solid rgba(108,108,108,0.4);
+}
+
 .interactible:not(:disabled):hover {
 	border: 4px solid rgba(87,87,87,0.619);
 }
 
 .interactible:not(:disabled):active {
 	background-color: rgba(14,14,14,0.38);
-}
-
-.interactible:disabled {
-	background-color: rgba(67,67,67,0.38);
-	border: 4px solid rgba(108,108,108,0.4);
 }
 
 #commandCaption {
@@ -141,17 +117,13 @@ body {
 	top: 50%;
 	transform: translateY(-50%);
 
+	font-family: "Georgia";
 	color: #eeeeee;
 }
 
 #command {
 	padding-left: 1.4em;
 }
-
-/*
-#command {
-	flex-grow: 1;
-}*/
 
 select {
 	-webkit-appearance: none;
@@ -160,11 +132,6 @@ select {
 
 select::-ms-expand {
 	display: none;
-}
-
-select option {
-	background-color: rgba(0,0,0,0.38);
-	border: 4px solid rgba(77,77,77,0.619);
 }
 
 .output-error {

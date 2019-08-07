@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html class="height-filler">
 	<head>
 		<title>Insight</title>
 
@@ -14,9 +15,10 @@
 		<script src="static/bug-fixer.js" type="module"></script>
 	</head>
 
-	<body>
+	<body class="height-filler">
 		<div class="filler horizontal bar">
-			<div id="editor-side" class="vertical bar">
+			<div id="editor-side" class="height-filler vertical bar">
+				<!-- Its's already a width-filler -->
 				<div class="controls horizontal bar">
 					<select
 						id="language"
@@ -33,11 +35,12 @@
 						title="Execute the command with the code as an input">Run</button>
 				</div>
 
-				<div id="editor" class="viewport">
-					<div class="expandable">
+				<!-- Its's already a width-filler -->
+				<div class="filler viewport">
+					<div class="covering expandable">
 						<textarea
 							id="input"
-							class="detached unscrollable transparent filler area"
+							class="detached unscrollable transparent covering area"
 							wrap="off"
 							spellcheck="false"></textarea>
 
@@ -50,7 +53,8 @@
 				</div>
 			</div>
 
-			<div id="output-side" class="vertical bar">
+			<div id="output-side" class="height-filler vertical bar">
+				<!-- Its's already a width-filler -->
 				<div class="controls horizontal bar">
 					<div id="commandCaption">$</div>
 					<input
@@ -62,7 +66,7 @@
 						title="A host may type in a command to be executed when [Run] is pressed">
 				</div>
 
-				<div id="output"></div>
+				<div id="output" class="text-preserving filler viewport area"></div>
 			</div>
 		</div>
 

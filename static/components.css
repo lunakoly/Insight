@@ -37,7 +37,6 @@
 }
 
 .viewport {
-	display: grid;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
@@ -67,13 +66,24 @@
 	overflow: hidden;
 }
 
-.filler {
+.covering {
 	min-width: 100%;
-		width: 100%;
 	min-height: 100%;
-		height: 100%;
 	border: none;
 	resize: none;
+}
+
+.filler {
+	width: 100%;
+	height: 100%;
+}
+
+.height-filler {
+	height: 100%;
+}
+
+.width-filler {
+	width: 100%;
 }
 
 .text-preserving {
