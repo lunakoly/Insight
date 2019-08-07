@@ -28,9 +28,15 @@ function isAdmin(address) {
 		   address == '::ffff:127.0.0.1'
 }
 
-function setCode(socket, theCode) {
-	code = theCode
-	socket.broadcast.emit('get code', code)
+function setCode(socket, changesHint) {
+	code = code.substring(0, changesHint.selectionStart) +
+		   changesHint.changes +
+		   code.substring(changesHint.selectionEnd)
+
+	socket.broadcast.emit('get code', {
+		changesHint: changesHint,
+		code: code
+	})
 }
 
 function setCommand(socket, theCommand) {
@@ -93,15 +99,23 @@ function run(socket) {
 io.on('connection', function(socket) {
 	socket.emit('get command', command)
 	socket.emit('get language', language)
-	socket.emit('get code', code)
+
+	socket.emit('get code', {
+		code: code,
+		changesHint: {
+			selectionStart: 0,
+			selectionEnd: 0,
+			changes: ''
+		}
+	})
 
 	if (isAdmin(socket.handshake.address)) {
 		socket.emit('accept admin')
 	}
 
-	socket.on('set code', theCode => setCode(socket, theCode))
-	socket.on('set command', theCommand => setCommand(socket, theCommand))
-	socket.on('set language', theLanguage => setLanguage(socket, theLanguage))
+	socket.on('set code', data => setCode(socket, data))
+	socket.on('set command', data => setCommand(socket, data))
+	socket.on('set language', data => setLanguage(socket, data))
 
 	socket.on('run', _ => run(socket))
 })

@@ -1,9 +1,1 @@
-#include <iostream>
-#include <windows.h>
-
-int main() {
-	for (auto it = 0; it < 20; it++) {
-		std::cout << "> " << it << std::endl;
-		Sleep(10);
-	}		
-}
+pra("Hello!")

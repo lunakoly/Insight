@@ -30,8 +30,19 @@ socket.on('get language', theLanguage => {
 	swapLanguage()
 })
 
-socket.on('get code', theCode => {
-	relations.assign(input, decoration, theCode)
+socket.on('get code', data => {
+	relations.assign(input, decoration, data.code)
+	const hint = data.changesHint
+
+	if (input.selectionStart > hint.selectionStart) {
+		if (input.selectionStart < hint.selectionEnd) {
+			input.selectionStart += hint.changes.length - (input.selectionStart - hint.selectionStart)
+		} else {
+			input.selectionStart += hint.changes.length - (hint.selectionEnd - hint.selectionStart)
+		}
+
+		input.selectionEnd = input.selectionStart
+	}
 })
 
 socket.on('accept admin', data => {
@@ -69,12 +80,29 @@ run.addEventListener('click', e => {
 	socket.emit('run')
 })
 
+
+const CHANGES_HINT = {
+	selectionStart: 0,
+	selectionEnd: 0,
+	changes: ''
+}
+
 input.addEventListener('input', e => {
-	socket.emit('set code', input.value)
+	CHANGES_HINT.changes = input.value.substring(CHANGES_HINT.selectionStart, input.selectionStart)
+	socket.emit('set code', CHANGES_HINT)
 })
 
-
 input.addEventListener('keydown', e => {
+	CHANGES_HINT.selectionStart = input.selectionStart
+	CHANGES_HINT.selectionEnd   = input.selectionEnd
+
+	if (
+		e.key == 'Backspace' &&
+		CHANGES_HINT.selectionStart == CHANGES_HINT.selectionEnd
+	) {
+		CHANGES_HINT.selectionStart--
+	}
+
 	if (e.key == 'Tab') {
 		e.preventDefault()
 		relations.inject(input, decoration, '\t')
