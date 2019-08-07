@@ -1,7 +1,9 @@
 #include <iostream>
+#include <windows.h>
 
-
-int main(int argc, const char * argv[]) {
-	std::cout << "Hello!" << std::endl;
-	return 0;
+int main() {
+	for (auto it = 0; it < 20; it++) {
+		std::cout << "> " << it << std::endl;
+		Sleep(10);
+	}		
 }

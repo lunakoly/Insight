@@ -8,18 +8,19 @@ const fs = require('fs')
 const cp = require('child_process')
 
 
-let command = SETTINGS.COMMAND
-let code = SETTINGS.CODE
-let language = SETTINGS.LANGUAGE
-
-let isRunning = false
-
-
 app.use('/static', express.static(__dirname + '/static'))
 
 app.get('/', function(request, response) {
 	response.sendFile(__dirname + '/static/index.html')
 })
+
+
+let code 	 = SETTINGS.CODE
+let command  = SETTINGS.COMMAND
+let language = SETTINGS.LANGUAGE
+
+let isRunning = false
+
 
 function isAdmin(address) {
 	return address == '::1' ||
@@ -27,73 +28,84 @@ function isAdmin(address) {
 		   address == '::ffff:127.0.0.1'
 }
 
-io.on('connection', function(socket) {
-	const address = socket.handshake.address
+function setCode(socket, theCode) {
+	code = theCode
+	socket.broadcast.emit('get code', code)
+}
 
+function setCommand(socket, theCommand) {
+	if (isAdmin(socket.handshake.address)) {
+		command = theCommand
+		socket.broadcast.emit('get command', command)
+	}
+}
+
+function setLanguage(socket, theLanguage) {
+	if (SETTINGS.LANGUAGES.includes(theLanguage)) {
+		language = theLanguage
+		socket.broadcast.emit('get language', language)
+		console.log('Set > Language > ' + language)
+	}
+}
+
+function spawnSubprocess(socket, error) {
+	if (error) {
+		isRunning = false
+		return console.error(error)
+	}
+
+	const child = cp.spawn(command, {
+		shell: true,
+		cwd: __dirname + SETTINGS.RUNNABLES
+	})
+
+	child.stdout.on('data', function(data) {
+		io.sockets.emit('output', new String(data))
+	})
+
+	child.stderr.on('data', function(data) {
+		io.sockets.emit('output', `<span class="output-error">${data}</span>`)
+	})
+
+	child.on('exit', function(code, signal) {
+		io.sockets.emit('output', `<span class="output-exit">Exit code: ${code}</span>\n`)
+		isRunning = false
+		console.log(' > Done')
+		io.sockets.emit('enable running')
+	})
+}
+
+function run(socket) {
+	if (isRunning)
+		return
+
+	io.sockets.emit('disable running')
+	process.stdout.write('Running > ' + command)
+	isRunning = true
+
+	fs.writeFile(
+		__dirname + SETTINGS.RUNNABLES + '/code',
+		code,
+		error => spawnSubprocess(socket, error)
+	)
+}
+
+io.on('connection', function(socket) {
 	socket.emit('get command', command)
 	socket.emit('get language', language)
 	socket.emit('get code', code)
 
-	if (isAdmin(address)) {
+	if (isAdmin(socket.handshake.address)) {
 		socket.emit('accept admin')
 	}
 
-	socket.on('set command', function(theCommand) {
-		if (isAdmin(address)) {
-			command = theCommand
-			socket.broadcast.emit('get command', command)
-		}
-	})
+	socket.on('set code', theCode => setCode(socket, theCode))
+	socket.on('set command', theCommand => setCommand(socket, theCommand))
+	socket.on('set language', theLanguage => setLanguage(socket, theLanguage))
 
-	socket.on('set language', function(theLanguage) {
-		if (SETTINGS.LANGUAGES.includes(theLanguage)) {
-			language = theLanguage
-			socket.broadcast.emit('get language', language)
-			console.log('Set > Language > ' + language)
-		}
-	})
-
-	socket.on('set code', function(theCode) {
-		code = theCode
-		socket.broadcast.emit('get code', code)
-	})
-
-	socket.on('run', function() {
-		if (isRunning)
-			return
-
-		io.sockets.emit('disable running')
-		process.stdout.write('Running > ' + command)
-		isRunning = true
-
-		fs.writeFile(__dirname + SETTINGS.RUNNABLES + '/code', code, function(error) {
-			if (error) {
-				isRunning = false
-				return console.error(error)
-			}
-
-			const child = cp.spawn(command, {
-				shell: true,
-				cwd: __dirname + SETTINGS.RUNNABLES
-			})
-
-			child.stdout.on('data', function(data) {
-				io.sockets.emit('output', new String(data))
-			})
-
-			child.stderr.on('data', function(data) {
-				io.sockets.emit('output', `<span class="output-error">${data}</span>`)
-			})
-
-			child.on('exit', function(code, signal) {
-				io.sockets.emit('output', `<span class="output-exit">Exit code: ${code}</span>\n`)
-				isRunning = false
-				console.log(' > Done')
-				io.sockets.emit('enable running')
-			})
-		})
-	})
+	socket.on('run', _ => run(socket))
 })
+
 
 http.listen(SETTINGS.PORT, function() {
 	console.log(`Started > Port = ${SETTINGS.PORT}`)
