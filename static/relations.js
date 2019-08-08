@@ -192,12 +192,13 @@ export function analyze(observable, observer) {
  * Assigns a new value to the observer value
  */
 export function assign(observable, observer, value) {
-	const oldStart = observable.selectionStart
+	const start = observable.selectionStart
+	const end   = observable.selectionEnd
 
 	observable.value = value
 
-	observable.selectionStart = oldStart
-	observable.selectionEnd = observable.selectionStart
+	observable.selectionStart = start
+	observable.selectionEnd   = end
 
 	observer.innerHTML = analyze(observable, observer)
 }
@@ -216,6 +217,34 @@ export function inject(observable, observer, sequence) {
 
 	observable.selectionStart += sequence.length
 	observable.selectionEnd = observable.selectionStart
+}
+
+/**
+ * Removes a portion described by changes.selectionStart
+ * and changes.selectionEnd and inserts changes.sequence there
+ */
+export function insert(observable, observer, changes) {
+	let start = observable.selectionStart
+	let end   = observable.selectionEnd
+
+	observable.value = observable.value.substring(0, changes.selectionStart) +
+		   			   changes.sequence +
+		   			   observable.value.substring(changes.selectionEnd)
+
+	if (end > changes.selectionStart) {
+		const min = Math.min(end, changes.selectionEnd)
+		end += changes.sequence.length - (min - changes.selectionStart)
+	}
+
+	if (start > changes.selectionStart) {
+		const min = Math.min(start, changes.selectionEnd)
+		start += changes.sequence.length - (min - changes.selectionStart)
+	}
+
+	observable.selectionStart = start
+	observable.selectionEnd   = end
+
+	observer.innerHTML = analyze(observable, observer)
 }
 
 

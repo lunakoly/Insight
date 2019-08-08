@@ -15,11 +15,36 @@ app.get('/', function(request, response) {
 })
 
 
-let code 	 = SETTINGS.CODE
+let code     = SETTINGS.CODE
 let command  = SETTINGS.COMMAND
 let language = SETTINGS.LANGUAGE
 
-let isRunning = false
+
+let positionToId = []
+
+function getIdByPosition(position) {
+	if (position == code.length)
+		return 'end'
+	return positionToId[position]
+}
+
+let idToPosition = {}
+
+function getPositionById(id) {
+	if (id == 'end')
+		return code.length
+	return idToPosition[id]
+}
+
+
+let nextCharacterID = 0
+
+while (nextCharacterID < code.length) {
+	const id =  'server:' + nextCharacterID
+	positionToId.push(id)
+	idToPosition[id] = nextCharacterID
+	nextCharacterID++
+}
 
 
 function isAdmin(address) {
@@ -28,15 +53,21 @@ function isAdmin(address) {
 		   address == '::ffff:127.0.0.1'
 }
 
-function setCode(socket, changesHint) {
-	code = code.substring(0, changesHint.selectionStart) +
-		   changesHint.changes +
-		   code.substring(changesHint.selectionEnd)
+function setCode(socket, changes) {
+	const start = getPositionById(changes.selectionStart)
+	const end   = getPositionById(changes.selectionEnd)
 
-	socket.broadcast.emit('get code', {
-		changesHint: changesHint,
-		code: code
-	})
+	code = code.substring(0, start) +
+		   changes.sequence +
+		   code.substring(end)
+
+	positionToId.splice(start, end - start, ...changes.sequencePositionToId)
+
+	for (let it = start; it < code.length; it++) {
+		idToPosition[positionToId[it]] = it
+	}
+
+	socket.broadcast.emit('get code', changes)
 }
 
 function setCommand(socket, theCommand) {
@@ -53,6 +84,9 @@ function setLanguage(socket, theLanguage) {
 		console.log('Set > Language > ' + language)
 	}
 }
+
+
+let isRunning = false
 
 function spawnSubprocess(socket, error) {
 	if (error) {
@@ -96,17 +130,21 @@ function run(socket) {
 	)
 }
 
+
+let nextUserID = 0
+
 io.on('connection', function(socket) {
+	socket.emit('get id', nextUserID)
+	nextUserID++
+
 	socket.emit('get command', command)
 	socket.emit('get language', language)
 
 	socket.emit('get code', {
-		code: code,
-		changesHint: {
-			selectionStart: 0,
-			selectionEnd: 0,
-			changes: ''
-		}
+		selectionStart: 'end',
+		selectionEnd: 'end',
+		sequence: code,
+		sequencePositionToId: positionToId,
 	})
 
 	if (isAdmin(socket.handshake.address)) {

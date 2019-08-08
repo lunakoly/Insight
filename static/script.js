@@ -21,6 +21,12 @@ function swapLanguage() {
 
 const socket = io()
 
+let userID = -1
+
+socket.on('get id', ID => {
+	userID = ID
+})
+
 socket.on('get command', theCommand => {
 	command.value = theCommand
 })
@@ -30,18 +36,38 @@ socket.on('get language', theLanguage => {
 	swapLanguage()
 })
 
-socket.on('get code', data => {
-	relations.assign(input, decoration, data.code)
-	const hint = data.changesHint
 
-	if (input.selectionStart > hint.selectionStart) {
-		if (input.selectionStart < hint.selectionEnd) {
-			input.selectionStart += hint.changes.length - (input.selectionStart - hint.selectionStart)
-		} else {
-			input.selectionStart += hint.changes.length - (hint.selectionEnd - hint.selectionStart)
-		}
+let positionToId = []
 
-		input.selectionEnd = input.selectionStart
+function getIdByPosition(position) {
+	if (position == positionToId.length)
+		return 'end'
+	return positionToId[position]
+}
+
+let idToPosition = {}
+
+function getPositionById(id) {
+	if (id == 'end')
+		return positionToId.length
+	return idToPosition[id]
+}
+
+
+socket.on('get code', changes => {
+	const start = getPositionById(changes.selectionStart)
+	const end   = getPositionById(changes.selectionEnd)
+
+	relations.insert(input, decoration, {
+		selectionStart: start,
+		selectionEnd: end,
+		sequence: changes.sequence
+	})
+
+	positionToId.splice(start, end - start, ...changes.sequencePositionToId)
+
+	for (let it = start; it < input.value.length; it++) {
+		idToPosition[positionToId[it]] = it
 	}
 })
 
@@ -81,26 +107,49 @@ run.addEventListener('click', e => {
 })
 
 
-const CHANGES_HINT = {
-	selectionStart: 0,
-	selectionEnd: 0,
-	changes: ''
+const CHANGES = {
+	selectionStart: 'end',
+	selectionEnd: 'end',
+	sequence: '',
+	sequencePositionToId: []
 }
 
+let nextCharacterID = 0
+let selectionStart = 0
+let selectionEnd = 0
+
+input.value = ''
+
 input.addEventListener('input', e => {
-	CHANGES_HINT.changes = input.value.substring(CHANGES_HINT.selectionStart, input.selectionStart)
-	socket.emit('set code', CHANGES_HINT)
+	CHANGES.selectionStart = getIdByPosition(selectionStart)
+	CHANGES.selectionEnd   = getIdByPosition(selectionEnd)
+
+	CHANGES.sequence = input.value.substring(selectionStart, input.selectionStart)
+	CHANGES.sequencePositionToId = []
+
+	for (let it = 0; it < CHANGES.sequence.length; it++) {
+		CHANGES.sequencePositionToId.push(userID + ':' + nextCharacterID)
+		nextCharacterID++
+	}
+
+	positionToId.splice(selectionStart, selectionEnd - selectionStart, ...CHANGES.sequencePositionToId)
+
+	for (let it = selectionStart; it < input.value.length; it++) {
+		idToPosition[positionToId[it]] = it
+	}
+
+	socket.emit('set code', CHANGES)
 })
 
 input.addEventListener('keydown', e => {
-	CHANGES_HINT.selectionStart = input.selectionStart
-	CHANGES_HINT.selectionEnd   = input.selectionEnd
+	selectionStart = input.selectionStart
+	selectionEnd   = input.selectionEnd
 
 	if (
 		e.key == 'Backspace' &&
-		CHANGES_HINT.selectionStart == CHANGES_HINT.selectionEnd
+		selectionStart == selectionEnd
 	) {
-		CHANGES_HINT.selectionStart--
+		selectionStart--
 	}
 
 	if (e.key == 'Tab') {
