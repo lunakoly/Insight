@@ -45,7 +45,7 @@ function setLanguage(args) {
 }
 
 function setCode(args) {
-	SETTINGS.CODE = fs.readFileSync(args.next(), 'utf-8')
+	SETTINGS.CODE = fs.readFileSync(args.next(), 'utf-8').replace(/\r+/g, '')
 }
 
 const OPTIONS = {

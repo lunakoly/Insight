@@ -3,6 +3,10 @@
 	font-weight: bold;
 }
 
+.keyword-value {
+	color: #efd099;
+}
+
 .function-call {
 	color: #50c6fe;
 }
@@ -23,8 +27,4 @@
 .preprocessor-directive {
 	color: #ff6e6e;
 	font-weight: bold;
-}
-
-.boolean-value {
-	color: #efd099;
 }

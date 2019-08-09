@@ -24,7 +24,7 @@ let language = SETTINGS.LANGUAGE
 let positionToId = []
 
 function getIdByPosition(position) {
-	if (position == code.length)
+	if (position == positionToId.length)
 		return 'end'
 	return positionToId[position]
 }
@@ -33,7 +33,7 @@ let idToPosition = {}
 
 function getPositionById(id) {
 	if (id == 'end')
-		return code.length
+		return positionToId.length
 	return idToPosition[id]
 }
 

@@ -9,6 +9,9 @@ socket.on('reconnect', () => {
 	for (let it = language.children.length - 1; it > 0; it--) {
 		language.removeChild(language.lastChild)
 	}
+
+	positionToId = []
+	idToPosition = {}
 })
 
 
