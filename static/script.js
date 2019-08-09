@@ -121,6 +121,9 @@ let selectionEnd = 0
 input.value = ''
 
 input.addEventListener('input', e => {
+	if (input.selectionStart < selectionStart)
+		selectionStart = input.selectionStart
+
 	CHANGES.selectionStart = getIdByPosition(selectionStart)
 	CHANGES.selectionEnd   = getIdByPosition(selectionEnd)
 
@@ -145,23 +148,10 @@ input.addEventListener('keydown', e => {
 	selectionStart = input.selectionStart
 	selectionEnd   = input.selectionEnd
 
-	if (
-		e.key == 'Backspace' &&
-		selectionStart == selectionEnd
-	) {
-		selectionStart--
-	}
-
 	if (e.key == 'Tab') {
 		e.preventDefault()
 		relations.inject(input, decoration, '\t')
-
-		const event = new Event('input', {
-			'bubbles': true,
-			'cancelable': false
-		})
-		input.dispatchEvent(event)
-
+		input.dispatchEvent(e)
 		return
 	}
 })
