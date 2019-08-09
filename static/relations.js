@@ -70,10 +70,18 @@ function wrap(text, styleClass, start, end) {
  */
 function lookAhead(pattern, text, start) {
 	const regex = new RegExp(pattern, 'g')
-	const matches = regex.exec(text.substring(start))
 
-	if (matches != null && matches.index == 0)
-		return matches[0]
+	if (start == 0) {
+		const matches = regex.exec(text)
+
+		if (matches != null && matches.index == 0)
+			return matches[0]
+	} else {
+		const matches = regex.exec(text.substring(start - 1))
+
+		if (matches != null && matches.index == 1)
+			return matches[0]
+	}
 
 	return null
 }
