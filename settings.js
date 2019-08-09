@@ -2,16 +2,12 @@ const fs = require('fs')
 
 const SETTINGS = {
 	PORT: 1234,
-	RUNNABLES: '/temp',
-	COMMAND: 'python code',
-	LANGUAGE: 'python',
-	CODE: 'print("Hello!")',
+	RUNTIME: '/runtime',
+	LANGUAGES: '/languages',
 
-	LANGUAGES: [
-		'kotlin',
-		'cpp',
-		'python'
-	]
+	LANGUAGE: 'plain text',
+	COMMAND: 'python code',
+	CODE: 'print("Hello!")'
 }
 
 const USAGE = 'Usage > [-hpcl] [--help | -h] [--port PORT | -p PORT] [--command COMMAND | -c COMMAND] [--language LANGUAGE | -l LANGUAGE]'
@@ -45,9 +41,6 @@ function setCommand(args) {
 
 function setLanguage(args) {
 	SETTINGS.LANGUAGE = args.next() || SETTINGS.LANGUAGE
-
-	if (!SETTINGS.LANGUAGES.includes(SETTINGS.LANGUAGE))
-		throw new Error('Error > No such language > ' + SETTINGS.LANGUAGE)
 }
 
 function setCode(args) {

@@ -1,4 +1,5 @@
 const SETTINGS = require('./settings.js')
+const LANGUAGES = require('./languages.js')
 
 const express = require('express')
 const app = express()
@@ -47,6 +48,20 @@ while (nextCharacterID < code.length) {
 }
 
 
+function representLanguages() {
+	let languagesList = []
+
+	for (let each of LANGUAGES.LIST) {
+		languagesList.push({
+			identifier: each,
+			name: LANGUAGES.BANK[each].name
+		})
+	}
+
+	return languagesList
+}
+
+
 function isAdmin(address) {
 	return address == '::1' ||
 		   address == '127.0.0.1' ||
@@ -78,7 +93,7 @@ function setCommand(socket, theCommand) {
 }
 
 function setLanguage(socket, theLanguage) {
-	if (SETTINGS.LANGUAGES.includes(theLanguage)) {
+	if (LANGUAGES.BANK[theLanguage]) {
 		language = theLanguage
 		socket.broadcast.emit('get language', language)
 		console.log('Set > Language > ' + language)
@@ -96,7 +111,7 @@ function spawnSubprocess(socket, error) {
 
 	const child = cp.spawn(command, {
 		shell: true,
-		cwd: __dirname + SETTINGS.RUNNABLES
+		cwd: __dirname + SETTINGS.RUNTIME
 	})
 
 	child.stdout.on('data', function(data) {
@@ -124,7 +139,7 @@ function run(socket) {
 	isRunning = true
 
 	fs.writeFile(
-		__dirname + SETTINGS.RUNNABLES + '/code',
+		__dirname + SETTINGS.RUNTIME + '/code',
 		code,
 		error => spawnSubprocess(socket, error)
 	)
@@ -138,6 +153,7 @@ io.on('connection', function(socket) {
 	nextUserID++
 
 	socket.emit('get command', command)
+	socket.emit('get languages', LANGUAGES)
 	socket.emit('get language', language)
 
 	socket.emit('get code', {

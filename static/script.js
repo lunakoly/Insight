@@ -1,38 +1,90 @@
 import * as relations from './relations.js'
 
-import { Kotlin } from './lang/kotlin.js'
-import { Cpp } from './lang/cpp.js'
-import { Python } from './lang/python.js'
-
-
-const scopes = {
-	'kotlin': Kotlin,
-	'cpp': Cpp,
-	'python': Python
-}
-
-function swapLanguage() {
-	const syntax = language.value || 'kotlin'
-	decoration.highlighter.clearScopes()
-	decoration.highlighter.pushScope(scopes[syntax])
-	decoration.innerHTML = relations.analyze(input, decoration)
-}
-
 
 const socket = io()
 
-let userID = -1
+socket.on('reconnect', () => {
+	input.value = ''
+
+	for (let it = language.children.length - 1; it > 0; it--) {
+		language.removeChild(language.lastChild)
+	}
+})
+
+
+let USER_ID = -1
 
 socket.on('get id', ID => {
-	userID = ID
+	USER_ID = ID
+})
+
+
+socket.on('disable running', data => {
+	run.disabled = true
+})
+
+socket.on('enable running', data => {
+	run.disabled = false
+})
+
+run.addEventListener('click', e => {
+	socket.emit('run')
+})
+
+
+socket.on('accept admin', data => {
+	command.disabled = false
 })
 
 socket.on('get command', theCommand => {
 	command.value = theCommand
 })
 
+command.addEventListener('input', e => {
+	socket.emit('set command', command.value)
+})
+
+
+socket.on('output', data => {
+	const doScroll = output.scrollTop + output.clientHeight == output.scrollHeight
+	output.innerHTML += data
+
+	if (doScroll) {
+		output.scrollTop = output.scrollHeight
+	}
+})
+
+
+let LANGUAGES = {}
+
+function swapLanguage() {
+	const syntax = language.value || 'plain text'
+	decoration.highlighter.setSyntax(LANGUAGES.BANK[syntax].scopes)
+	decoration.innerHTML = relations.analyze(input, decoration)
+}
+
+socket.on('get languages', THE_LANGUAGES => {
+	LANGUAGES = THE_LANGUAGES
+
+	for (let each of LANGUAGES.LIST) {
+		if (each == 'plain text')
+			continue
+
+		const option = document.createElement('option')
+		option.innerHTML = LANGUAGES.BANK[each].name
+		option.value = each
+
+		language.appendChild(option)
+	}
+})
+
 socket.on('get language', theLanguage => {
 	language.value = theLanguage
+	swapLanguage()
+})
+
+language.addEventListener('change', e => {
+	socket.emit('set language', language.value)
 	swapLanguage()
 })
 
@@ -71,41 +123,6 @@ socket.on('get code', changes => {
 	}
 })
 
-socket.on('accept admin', data => {
-	command.disabled = false
-})
-
-socket.on('output', data => {
-	const doScroll = output.scrollTop + output.clientHeight == output.scrollHeight
-	output.innerHTML += data
-
-	if (doScroll) {
-		output.scrollTop = output.scrollHeight
-	}
-})
-
-socket.on('disable running', data => {
-	run.disabled = true
-})
-
-socket.on('enable running', data => {
-	run.disabled = false
-})
-
-
-command.addEventListener('input', e => {
-	socket.emit('set command', command.value)
-})
-
-language.addEventListener('change', e => {
-	socket.emit('set language', language.value)
-	swapLanguage()
-})
-
-run.addEventListener('click', e => {
-	socket.emit('run')
-})
-
 
 const CHANGES = {
 	selectionStart: 'end',
@@ -131,7 +148,7 @@ input.addEventListener('input', e => {
 	CHANGES.sequencePositionToId = []
 
 	for (let it = 0; it < CHANGES.sequence.length; it++) {
-		CHANGES.sequencePositionToId.push(userID + ':' + nextCharacterID)
+		CHANGES.sequencePositionToId.push(USER_ID + ':' + nextCharacterID)
 		nextCharacterID++
 	}
 

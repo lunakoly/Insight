@@ -52,78 +52,30 @@ export class RegexHighlighter extends EmptyHighlighter {
 
 
 /**
- * Defines a parsing context
+ * Wraps a portion of text with a
+ * styleClass. Inserts that portion into
+ * the text and returns it as a result with
+ * the position pointing after the insertion
  */
-export class Scope {
-	constructor(styleClass, transitions = {}) {
-		this.transitions = transitions
-		this.styleClass = styleClass
-	}
+function wrap(text, styleClass, start, end) {
+	const read = text.substring(start, end)
+	const wrapped = format.wrap(read, styleClass)
+	const result = format.insert(text, wrapped, start, end - start)
+	return [result, start + wrapped.length]
+}
 
-	/**
-	 * Wraps a portion of text with a
-	 * styleClass. Inserts that portion into
-	 * the text and returns it as a result with
-	 * the position pointing after the insertion
-	 */
-	wrap(text, styleClass, start, end) {
-		const read = text.substring(start, end)
-		const wrapped = format.wrap(read, styleClass)
-		const result = format.insert(text, wrapped, start, end - start)
-		return [result, start + wrapped.length]
-	}
+/**
+ * Tests if the next part of text
+ * satisfies the pattern
+ */
+function lookAhead(pattern, text, start) {
+	const regex = new RegExp(pattern, 'g')
+	const matches = regex.exec(text.substring(start))
 
-	/**
-	 * Tests if the next part of text
-	 * satisfies the pattern
-	 */
-	lookAhead(pattern, text, start) {
-		const regex = new RegExp(pattern, 'g')
-		const matches = regex.exec(text.substring(start))
+	if (matches != null && matches.index == 0)
+		return matches[0]
 
-		if (matches != null && matches.index == 0)
-			return matches[0]
-
-		return null
-	}
-
-	/**
-	 * Highlights the next part of text
-	 */
-	proceed(text, index) {
-		let it = index;
-
-		while (it < text.length) {
-			let found = false
-
-			for (let each of Object.keys(this.transitions)) {
-				const item = this.transitions[each]
-				const match = this.lookAhead(each, text, it)
-
-				if (match != null) {
-					found = true
-
-					if (item.styleClass)
-						[text, it] = this.wrap(text, item.styleClass, it, it + match.length)
-					else
-						it += match.length
-
-					if (item.pop)
-						return this.wrap(text, this.styleClass, index, it)
-
-					if (item.push)
-						[text, it] = item.push.proceed(text, it)
-
-					break
-				}
-			}
-
-			if (!found)
-				it++
-		}
-
-		return this.wrap(text, this.styleClass, index, it)
-	}
+	return null
 }
 
 /**
@@ -135,40 +87,64 @@ export class ScopedHighlighter extends EmptyHighlighter {
 		super()
 
 		/**
-		 * Stack of contexts
+		 * Holds all contexts
 		 */
-		this.scopes = []
+		this.syntax = {}
 	}
 
 	/**
-	 * Adds a scope
+	 * Sets the current grammar rules
 	 */
-	pushScope(scope) {
-		this.scopes.push(scope)
+	setSyntax(syntax) {
+		this.syntax = syntax
 	}
 
 	/**
-	 * Returns the last added scope
+	 * Highlights the next part of text
 	 */
-	getLastScope() {
-		return this.scopes[this.scopes.length - 1]
-	}
+	applyScope(scope, text, index) {
+		let it = index;
 
-	/**
-	 * Resets scope settings
-	 */
-	clearScopes() {
-		this.scopes = []
+		while (it < text.length) {
+			let found = false
+
+			for (let each of Object.keys(scope.patterns)) {
+				const item = scope.patterns[each]
+				const match = lookAhead(each, text, it)
+
+				if (match != null) {
+					found = true
+
+					if (item.style_class)
+						[text, it] = wrap(text, item.style_class, it, it + match.length)
+					else
+						it += match.length
+
+					if (item.pop)
+						return wrap(text, scope.style_class, index, it)
+
+					if (item.push)
+						[text, it] = this.applyScope(this.syntax[item.push], text, it)
+
+					break
+				}
+			}
+
+			if (!found)
+				it++
+		}
+
+		return wrap(text, scope.style_class, index, it)
 	}
 
 	/**
 	 * Highlights the text
 	 */
 	highlight(text) {
-		const top = this.getLastScope()
+		const top = this.syntax.global
 
 		if (top) {
-			const [result, index] = top.proceed(text, 0)
+			const [result, index] = this.applyScope(top, text, 0)
 			return result
 		}
 
