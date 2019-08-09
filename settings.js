@@ -1,13 +1,14 @@
 const fs = require('fs')
+const os = require('os')
+const path = require('path')
 
 const SETTINGS = {
 	PORT: 1234,
 	RUNTIME: '/runtime',
-	LANGUAGES: '/languages',
 
 	LANGUAGE: 'plain text',
-	COMMAND: 'python code',
-	CODE: 'print("Hello!")'
+	COMMAND: 'echo Hello!',
+	CODE: 'Type here...'
 }
 
 const USAGE = 'Usage > [-hpcl] [--help | -h] [--port PORT | -p PORT] [--command COMMAND | -c COMMAND] [--language LANGUAGE | -l LANGUAGE]'
@@ -63,7 +64,39 @@ const ALIASES = {
 	'f': OPTIONS['--file']
 }
 
+function applyDefaults(defaults) {
+	const contents = fs.readFileSync(defaults, 'utf-8')
+	const settings = JSON.parse(contents)
+
+	for (let key in settings) {
+		const option = '--' + key
+
+		if (OPTIONS[option]) {
+			let values = settings[key]
+
+			if (!Array.isArray(settings[key]))
+				values = [settings[key]]
+
+			const iterator = new Iterator(values, 0)
+			OPTIONS[option](iterator)
+		} else {
+			throw new Error('Error > No such option > ' + key)
+		}
+	}
+}
+
 try {
+	const home = os.homedir()
+	const defaults = path.join(home, '.insight/defaults.json')
+
+	if (fs.existsSync(defaults)) {
+		if (!fs.lstatSync(defaults).isFile()) {
+			throw new Error(`Error > '${defaults}' must be a JSON file`)
+		}
+
+		applyDefaults(defaults)
+	}
+
 	const args = new Iterator(process.argv, 2)
 
 	while (args.hasNext()) {

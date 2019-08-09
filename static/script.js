@@ -168,7 +168,13 @@ input.addEventListener('keydown', e => {
 	if (e.key == 'Tab') {
 		e.preventDefault()
 		relations.inject(input, decoration, '\t')
-		input.dispatchEvent(e)
+
+		const event = new Event('input', {
+			'bubbles': true,
+			'cancelable': false
+		})
+		input.dispatchEvent(event)
+
 		return
 	}
 })

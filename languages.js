@@ -1,8 +1,8 @@
 const SETTINGS = require('./settings.js')
 
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
-
 
 const LANGUAGES = {
 	LIST: ['plain text'],
@@ -19,45 +19,42 @@ const LANGUAGES = {
 	}
 }
 
-
 function getFileNameWithoutExtension(file) {
 	return file.split('.').slice(0, -1).join('.')
 }
 
-function loadLanguageFileContents(error, contents, file) {
-	if (error) {
-		throw error
-	}
-
-	const info = JSON.parse(contents)
-	const identifier = getFileNameWithoutExtension(file)
-
-	if (LANGUAGES.BANK[identifier]) {
-		throw new Error(`Error > Language identifier '${identifier}' is already in use`)
-	}
-
-	LANGUAGES.LIST.push(identifier)
-	LANGUAGES.BANK[identifier] = info
-}
-
-function loadLanguageFile(file) {
-	const fullPath = path.join(__dirname, SETTINGS.LANGUAGES, file)
-	fs.readFile(fullPath, (error, contents) => loadLanguageFileContents(error, contents, file))
-}
-
-function selectFiles(error, files) {
-	if (error)
-		throw error
+function parseLanguages(languages) {
+	const files = fs.readdirSync(languages)
 
 	for (let each of files) {
 		if (path.extname(each) == '.json') {
-			loadLanguageFile(each)
+			const fullPath = path.join(languages, each)
+			const contents = fs.readFileSync(fullPath, 'utf-8')
+
+			const info = JSON.parse(contents)
+			const identifier = getFileNameWithoutExtension(each)
+
+			if (LANGUAGES.BANK[identifier]) {
+				throw new Error(`Error > Language identifier '${identifier}' is already in use`)
+			}
+
+			LANGUAGES.LIST.push(identifier)
+			LANGUAGES.BANK[identifier] = info
 		}
 	}
 }
 
 try {
-	fs.readdir(__dirname + SETTINGS.LANGUAGES, selectFiles)
+	const home = os.homedir()
+	const languages = path.join(home, '.insight/languages')
+
+	if (fs.existsSync(languages)) {
+		if (!fs.lstatSync(languages).isDirectory()) {
+			throw new Error(`Error > '${languages}' must be a directory containing syntax rules`)
+		}
+
+		parseLanguages(languages)
+	}
 
 	if (!LANGUAGES.BANK[SETTINGS.LANGUAGE]) {
 		throw new Error('Error > No such language > ' + SETTINGS.LANGUAGE)
