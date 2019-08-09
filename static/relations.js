@@ -236,10 +236,13 @@ export function insert(observable, observer, changes) {
 		end += changes.sequence.length - (min - changes.selectionStart)
 	}
 
-	if (start > changes.selectionStart) {
+	if (start >= changes.selectionStart) {
 		const min = Math.min(start, changes.selectionEnd)
 		start += changes.sequence.length - (min - changes.selectionStart)
 	}
+
+	if (start > end)
+		end = start
 
 	observable.selectionStart = start
 	observable.selectionEnd   = end
