@@ -9,6 +9,7 @@ const fs = require('fs')
 const cp = require('child_process')
 
 
+// express.js minimum setup
 app.use('/static', express.static(__dirname + '/static'))
 
 app.get('/', function(request, response) {
@@ -16,21 +17,49 @@ app.get('/', function(request, response) {
 })
 
 
+/**
+ * Code is a server-side version
+ * of the text that users are editing
+ */
 let code     = SETTINGS.CODE
+/**
+ * This command is run when users
+ * request it's execution
+ */
 let command  = SETTINGS.COMMAND
+/**
+ * A language highlight rules that are
+ * currently in use across all the clients
+ */
 let language = SETTINGS.LANGUAGE
 
 
+/**
+ * Helps getIdByPosition()
+ */
 let positionToId = []
 
+/**
+ * Translates an absolute index position
+ * of the caret in the code to it's relative position
+ * determined by an id of a character
+ */
 function getIdByPosition(position) {
 	if (position == positionToId.length)
 		return 'end'
 	return positionToId[position]
 }
 
+/**
+ * Helps getPositionById()
+ */
 let idToPosition = {}
 
+/**
+ * Translates a relative position
+ * of the caret in the code to it's absolute position
+ * via character id
+ */
 function getPositionById(id) {
 	if (id == 'end')
 		return positionToId.length
@@ -38,6 +67,8 @@ function getPositionById(id) {
 }
 
 
+// fill in idToPosition and positionToId
+// based on the default text
 let nextCharacterID = 0
 
 while (nextCharacterID < code.length) {
@@ -48,26 +79,20 @@ while (nextCharacterID < code.length) {
 }
 
 
-function representLanguages() {
-	let languagesList = []
-
-	for (let each of LANGUAGES.LIST) {
-		languagesList.push({
-			identifier: each,
-			name: LANGUAGES.BANK[each].name
-		})
-	}
-
-	return languagesList
-}
-
-
+/**
+ * Returns true if the given address
+ * refers the administrator
+ */
 function isAdmin(address) {
 	return address == '::1' ||
 		   address == '127.0.0.1' ||
 		   address == '::ffff:127.0.0.1'
 }
 
+/**
+ * Applies changes to the server text version
+ * and broadcasts the changes to everyone
+ */
 function setCode(socket, changes) {
 	const start = getPositionById(changes.selectionStart)
 	const end   = getPositionById(changes.selectionEnd)
@@ -85,6 +110,10 @@ function setCode(socket, changes) {
 	socket.broadcast.emit('get code', changes)
 }
 
+/**
+ * Sets the command and broadcasts
+ * it to everyone
+ */
 function setCommand(socket, theCommand) {
 	if (isAdmin(socket.handshake.address)) {
 		command = theCommand
@@ -92,6 +121,11 @@ function setCommand(socket, theCommand) {
 	}
 }
 
+/**
+ * Sets the language and broadcasts
+ * it to everyone. If an invalid language
+ * is received it'll be ignored
+ */
 function setLanguage(socket, theLanguage) {
 	if (LANGUAGES.BANK[theLanguage]) {
 		language = theLanguage
@@ -101,8 +135,14 @@ function setLanguage(socket, theLanguage) {
 }
 
 
+/**
+ * Prevents multiple [Run]'s
+ */
 let isRunning = false
 
+/**
+ * Executes a command in the RUNTIME directory
+ */
 function spawnSubprocess(socket, error) {
 	if (error) {
 		isRunning = false
@@ -130,6 +170,9 @@ function spawnSubprocess(socket, error) {
 	})
 }
 
+/**
+ * Manages [Run] button
+ */
 function run(socket) {
 	if (isRunning)
 		return
@@ -146,6 +189,10 @@ function run(socket) {
 }
 
 
+/**
+ * Id to give each new user
+ * when connected
+ */
 let nextUserID = 0
 
 io.on('connection', function(socket) {
@@ -175,6 +222,7 @@ io.on('connection', function(socket) {
 })
 
 
+// start the server
 http.listen(SETTINGS.PORT, function() {
 	console.log(`Started > Port = ${SETTINGS.PORT}`)
 })

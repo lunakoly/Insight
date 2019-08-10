@@ -1,5 +1,10 @@
-# Example of int
-number = 10
+import time
+import sys
 
-# display to screen
-print('Number =', number)
+def write(*args, **kwargs):
+	print(*args, **kwargs)
+	sys.stdout.flush()
+
+for i in range(10):
+	write('Hello!')
+	time.sleep(0.1)

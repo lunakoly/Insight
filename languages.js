@@ -4,14 +4,44 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
+/**
+ * This objects contains server-wide settings
+ * and will be exported from this module
+ */
 const LANGUAGES = {
+	/**
+	 * A list of all possible valid
+	 * language identifiers
+	 */
 	LIST: ['plain text'],
 
+	/**
+	 * Maps a language identifier to it's
+	 * language declaration
+	 */
 	BANK: {
 		'plain text': {
+			/**
+		     * Name is required and will be displayed
+		     * in the select control on the client side
+			 */
 			'name': 'Plain Text',
+			/**
+		     * Scopes are requred and represent actual syntax
+		     * highlighting rules to be applied
+			 */
 			'scopes': {
+				/**
+				 * Global scope is required since it's
+				 * a starting point of the highlight
+				 */
 				'global': {
+					/**
+					 * Patterns are required and define
+					 * regex string representations as keys
+					 * and actions to be done as their mapped
+					 * values
+					 */
 					'patterns': {}
 				}
 			}
@@ -19,10 +49,18 @@ const LANGUAGES = {
 	}
 }
 
+/**
+ * Returns the name of the file without
+ * it's extension
+ */
 function getFileNameWithoutExtension(file) {
 	return file.split('.').slice(0, -1).join('.')
 }
 
+/**
+ * Loads languages from the directory
+ * specified via languages
+ */
 function parseLanguages(languages) {
 	const files = fs.readdirSync(languages)
 
@@ -45,6 +83,7 @@ function parseLanguages(languages) {
 }
 
 try {
+	// check if there're some user-defined languages
 	const home = os.homedir()
 	const languages = path.join(home, '.insight/languages')
 
@@ -56,6 +95,7 @@ try {
 		parseLanguages(languages)
 	}
 
+	// if the requested language is invalid
 	if (!LANGUAGES.BANK[SETTINGS.LANGUAGE]) {
 		throw new Error('Error > No such language > ' + SETTINGS.LANGUAGE)
 	}
