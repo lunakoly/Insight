@@ -45,9 +45,9 @@ $ node . -pc 25565 "echo Bye!" --file ~/welcome.txt
 Alternative default options can be specifier in `~/.insight/defaults.json` file. Top-level keys must be exactly the same options as the ones defined above except they should not have `--` prefix:
 ```
 {
-	"command": "python code",
-	"language": "python",
-	"file": "C:\\\\Users\\luna_koly\\.insight\\greeting.py"
+    "command": "python code",
+    "language": "python",
+    "file": "C:\\\\Users\\luna_koly\\.insight\\greeting.py"
 }
 ```
 
@@ -64,81 +64,81 @@ The structure of the file:
      * Name is required and will be displayed
      * in the select control on the client side
      */
-	"name": "Python",
+    "name": "Python",
 
-	/**
+    /**
      * Scopes are requred and represent actual syntax
      * highlighting rules to be applied
      */
-	"scopes": {
-    	/**
+    "scopes": {
+        /**
          * Keys are the identifiers of context.
          * Values are the contexts themselves.
          * Global scope is required since it's
          * a starting point of the highlight
          */
-		"global": {
-       		/**
+        "global": {
+            /**
              * Patterns are required and define
              * regex string representations as keys
              * and actions to be done as their mapped
              * values.
              * 'patterns' may be empty.
              */
-			"patterns": {
-            	/**
+            "patterns": {
+                /**
                  * In our example it defines a start of
                  * quoted text
                  */
-				"'": {
-                	/**
+                "'": {
+                    /**
                      * Style to apply to the result of
                      * the "'" match.
                      */
-					"style_class": "single-quoted",
+                    "style_class": "single-quoted",
                     /**
                      * The name of the scope to use
                      * recursively scince now
                      */
-					"push": "single_quote_scope"
-				},
+                    "push": "single_quote_scope"
+                },
 
                 /**
                  * An example of matching keywords
                  */
-				"\\b(if|elif|else)\\b": {
-					"style_class": "keyword"
-				}
-			}
-		},
+                "\\b(if|elif|else)\\b": {
+                    "style_class": "keyword"
+                }
+            }
+        },
 
         /**
          * The quoted text in our example.
          */
         "single_quote_scope": {
-        	/**
+            /**
              * Optional parameter defining the style class
              * for the whole scope
              */
-			"style_class": "single-quoted",
+            "style_class": "single-quoted",
 
-			"patterns": {
-				"'": {
-                	/**
+            "patterns": {
+                "'": {
+                    /**
                      * Tells the interpreter to escape the
                      * current scope
                      */
-					"pop": true
-				},
+                    "pop": true
+                },
 
-				/**
+                /**
                  * Match escape sequences
                  */
-				"\\\\.": {
-					"style_class": "keyword"
-				}
-			}
-		}
-	}
+                "\\\\.": {
+                    "style_class": "keyword"
+                }
+            }
+        }
+    }
 }
 ```
