@@ -1,3 +1,18 @@
+.error {
+	color: #ff6e6e;
+	text-decoration: underline wavy
+}
+
+.single-quoted {
+	color: #94dc90;
+	font-style: italic;
+}
+
+.double-quoted {
+	color: #94dc90;
+	font-style: italic;
+}
+
 .keyword {
 	color: #ff6722;
 	font-weight: bold;
@@ -7,21 +22,25 @@
 	color: #efd099;
 }
 
+.primitive {
+	color: #bea0d6;
+}
+
 .function-call {
 	color: #50c6fe;
+}
+
+.identifier {
+
 }
 
 .number {
 	color: #efd099;
 }
 
-.quoted {
-	color: #94dc90;
+.comment {
+	color: #858585;
 	font-style: italic;
-}
-
-.primitive {
-	color: #bea0d6;
 }
 
 .preprocessor-directive {

@@ -1,21 +1,5 @@
-class Animal():
-	def __init__(self, name):
-		self.name = name
+# Example of int
+number = 10
 
-	def talk(self):
-		print('{} > ...'.format(self.name))
-
-class Dog(Animal):
-	def talk(self):
-		print('{} > Bark!'.format(self.name))
-
-class Cat(Animal):
-	def talk(self):
-		print('{} > Mew!'.format(self.name))
-
-
-doggy = Dog('Doggy')
-doggy.talk()
-
-kitty = Cat('Kitty')
-kitty.talk()
+# display to screen
+print('Number =', number)

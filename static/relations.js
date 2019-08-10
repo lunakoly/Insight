@@ -169,7 +169,7 @@ export class ScopedHighlighter extends EmptyHighlighter {
 export function analyze(observable, observer) {
 	const escaped = format.escape(observable.value)
 	const value = observer.highlighter.highlight(escaped)
-	return format.divide(value)
+	return value
 }
 
 /**
