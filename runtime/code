@@ -1,10 +1,18 @@
-import time
-import sys
+#include <iostream>
+#include <windows.h>
 
-def write(*args, **kwargs):
-	print(*args, **kwargs)
-	sys.stdout.flush()
+/**
+ * Greets a person
+ */
+template <typename T>
+void greet(T && person) {
+	std::cout << "Hello, " << person << "!" << std::endl;
+}
 
-for i in range(10):
-	write('Hello!')
-	time.sleep(0.1)
+int main(int argc, const char * argv[]) {
+	// for every argument
+	for (size_t it = 1; it < argc; it++) {
+		greet(argv[it]);
+		Sleep(100);
+	}
+}

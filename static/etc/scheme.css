@@ -30,10 +30,6 @@
 	color: #50c6fe;
 }
 
-.identifier {
-
-}
-
 .number {
 	color: #efd099;
 }
@@ -45,5 +41,10 @@
 
 .preprocessor-directive {
 	color: #ff6e6e;
+	font-weight: bold;
+}
+
+.preprocessor-parameter {
+	color: #efd099;
 	font-weight: bold;
 }

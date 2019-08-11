@@ -1,17 +1,22 @@
 # Insight
-A server that allows multiple users to edit and run code simultaneously
+A server that allows multiple users to edit and run code simultaneously.
+Anyone who connects to the server is able to edit the text.
+If the host connects to the server it is given a permission to set
+a certain command. Any user is able to request the command execution.
 
-![image](https://github.com/lunakoly/Insight/blob/dc4c8ecbfff51f8722581099e421ed68c2f3adda/images/image.png)
+For additional materials also see [Insight Goodies](https://github.com/lunakoly/InsightGoodies).
 
 ## Requirements
 - `Node.js` installed
 
 ## Installation
+Download the repo via any browser or clone it via `git`:
 ```
-$ git clone https://github.com/lunakoly/Insight.git
+git clone https://github.com/lunakoly/Insight.git
 ```
 
 ## Usage
+Navigate to the project folder and start `Node.js` server:
 ```
 node . [options...]
 ```
@@ -56,6 +61,8 @@ When any user requests `[Run]` the text is written into a file named `code` insi
 
 ## Languages
 To add different syntax highlighting schemes the one needs to have a corresponding `.json` file inside of `~/.insight/languages/`. The name of the file (without the extension) is used as a language identifier. The name `plain text.json` is forbidden since such an identifier is already in use.
+
+Examples of languages are also available at [Insight Goodies](https://github.com/lunakoly/InsightGoodies).
 
 The structure of the file:
 ```
