@@ -11,9 +11,12 @@ if (userAgent.indexOf('safari') != -1) {
  	if (userAgent.indexOf('chrome') > -1) {
 
 	} else {
-		// fix 3px padding bug of <textarea>
-		const style = document.createElement('style')
-		style.innerHTML = 'textarea { margin-left: -3px; }'
-		document.body.appendChild(style)
+		// mobile only
+		if (/iPad|iPhone|iPod/.test(userAgent)) {
+			// fix 3px padding bug of <textarea>
+			const style = document.createElement('style')
+			style.innerHTML = 'textarea { margin-left: -3px; }'
+			document.body.appendChild(style)
+		}
 	}
 }

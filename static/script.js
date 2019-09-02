@@ -231,6 +231,14 @@ input.addEventListener('keydown', e => {
 	selectionStart = input.selectionStart
 	selectionEnd   = input.selectionEnd
 
+	if (
+		(e.ctrlKey || e.metaKey) &&
+		(e.key == 'Z' || e.key == 'z')
+	) {
+		e.preventDefault()
+		return
+	}
+
 	if (e.key == 'Tab') {
 		e.preventDefault()
 		relations.inject(input, decoration, '\t')
