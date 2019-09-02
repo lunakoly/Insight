@@ -22,20 +22,13 @@ node . [options...]
 ```
 
 Available options:
-- `--help`: prints usage message
-- `--port`: sets the port to start the server on
-- `--command`: sets the initial value of the `[Run]` command
-- `--language`: sets the identifier of the syntax highlight rules to be used initially (terminates if the requested language is not presented)
-- `--file`: specifies the file which contents should be used as initial text
+- `-h`, `--help`: prints usage message
+- `-p`, `--port`: sets the port to start the server on
+- `-c`, `--command`: sets the initial value of the `[Run]` command
+- `-l`, `--language`: sets the identifier of the syntax highlight rules to be used initially (terminates if the requested language is not presented)
+- `-f`, `--file`: specifies the file which contents should be used as initial text
 
-Available aliases:
-- `h` = `--help`
-- `p` = `--port`
-- `c` = `--command`
-- `l` = `--language`
-- `f` = `--file`
-
-When no options/aliases specified the default ones are used:
+When no options specified the default ones are used:
 - The port is `1234`
 - The initial command is `print Hello!`
 - The initial language is `plain text`
