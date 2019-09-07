@@ -1,18 +1,7 @@
-#include <iostream>
-#include <windows.h>
+"""
+Squares the number
+"""
+def f(x):
+	return x * x
 
-/**
- * Greets a person
- */
-template <typename T>
-void greet(T && person) {
-	std::cout << "Hello, " << person << "!" << std::endl;
-}
-
-int main(int argc, const char * argv[]) {
-	// for every argument
-	for (size_t it = 1; it < argc; it++) {
-		greet(argv[it]);
-		Sleep(100);
-	}
-}
+print('100^2 =', f(10))
